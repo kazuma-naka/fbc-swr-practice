@@ -14,59 +14,46 @@ const fetcher = (url) =>
     return res.json();
   });
 
-const animationOption = (type) => {
+function lottieAnimation(type) {
+  let animationData = "load";
   if (type === "load") {
-    return {
-      loop: true,
-      autoplay: true,
-      animationData: loadingAnimation,
-      rendererSettings: {
-        preserveAspectRatio: "xMidYMid slice",
-      },
-    };
+    animationData = loadingAnimation;
   } else if (type === "success") {
-    return {
-      loop: false,
-      autoplay: true,
-      animationData: successAnimation,
-      rendererSettings: {
-        preserveAspectRatio: "xMidYMid slice",
-      },
-    };
+    animationData = successAnimation;
   } else if (type === "error") {
-    return {
-      loop: true,
-      autoplay: true,
-      animationData: errorAnimation,
-      rendererSettings: {
-        preserveAspectRatio: "xMidYMid slice",
-      },
-    };
+    animationData = errorAnimation;
   }
-  return null;
-};
+  return (
+    <Lottie
+      options={{
+        loop: true,
+        autoplay: true,
+        animationData: animationData,
+        rendererSettings: {
+          preserveAspectRatio: "xMidYMid slice",
+        },
+      }}
+      height={200}
+      width={200}
+    />
+  );
+}
 
 function App() {
-  const url = "https://httpstat.us/200?sleep=2000a";
+  const url = "https://httpstat.us/200?sleep=2000";
   const { data, error } = useSWR(url, fetcher);
   return (
     <div className="container">
-      {!data && !error && (
-        <Lottie options={animationOption("load")} height={200} width={200} />
-      )}
+      {!data && !error && lottieAnimation("load")}
       {error && (
         <div className="error-parent">
-          <Lottie options={animationOption("error")} height={200} width={200} />
+          {lottieAnimation("error")}
           <p>Error: {error.message}</p>
         </div>
       )}
       {data && (
         <div className="success-parent">
-          <Lottie
-            options={animationOption("success")}
-            height={200}
-            width={200}
-          />
+          {lottieAnimation("success")}
           <p>Status: {data.description}</p>
         </div>
       )}
