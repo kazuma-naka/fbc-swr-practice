@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import Lottie from "react-lottie";
 import "./App.css";
@@ -14,46 +14,37 @@ const fetcher = (url) =>
     return res.json();
   });
 
-function lottieAnimation(type) {
-  let animationData = "load";
-  if (type === "load") {
-    animationData = loadingAnimation;
-  } else if (type === "success") {
-    animationData = successAnimation;
-  } else if (type === "error") {
-    animationData = errorAnimation;
-  }
-  return (
-    <Lottie
-      options={{
-        loop: true,
-        autoplay: true,
-        animationData: animationData,
-        rendererSettings: {
-          preserveAspectRatio: "xMidYMid slice",
-        },
-      }}
-      height={200}
-      width={200}
-    />
-  );
-}
-
 function App() {
   const url = "https://httpstat.us/200?sleep=2000";
   const { data, error } = useSWR(url, fetcher);
+  const [animationData, setAnimationData] = useState(loadingAnimation);
+  const options = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: "xMidYMid slice",
+    },
+  };
+
+  useEffect(() => {
+    if (error) {
+      setAnimationData(errorAnimation);
+    } else if (data) {
+      setAnimationData(successAnimation);
+    }
+  }, [data, error]);
+
   return (
     <div className="container">
-      {!data && !error && lottieAnimation("load")}
+      <Lottie options={options} height={200} width={200} />
       {error && (
         <div className="error-parent">
-          {lottieAnimation("error")}
           <p>Error: {error.message}</p>
         </div>
       )}
       {data && (
         <div className="success-parent">
-          {lottieAnimation("success")}
           <p>Status: {data.description}</p>
         </div>
       )}
